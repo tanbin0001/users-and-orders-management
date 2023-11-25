@@ -30,13 +30,12 @@ const getSingleUserFromDB = async (id: number) => {
 
 const updateUserDataInDB = async (userId: number, updatedUserData: TUser) => {
   try {
-    const result = await User.updateOne({ userId }, { $set: updatedUserData })
 
-    if (result.modifiedCount === 0) {
-      throw new Error('User not found in the database')
-    }
+    const result = await User.findOneAndUpdate({ userId }, { $set: updatedUserData } , {new: true, projection: { password: 0} })
 
-    return result
+ 
+
+    return result;
   } catch (error) {
     console.error(error)
     throw error
@@ -57,13 +56,18 @@ const updateUserOrdersOnDB = async (
   userId: number,
   updateOrderData: TProduct,
 ) => {
+  const user = new User(updateOrderData)
+  if ( !user.isUserExists(userId)) {
+    throw new Error('User not  exists')
+  }
+ 
   const result = await User.updateOne(
     { userId },
     { $push: { orders: updateOrderData } },
+    {new: true, projection:{password:0}}
   )
-  if (result.modifiedCount === 0) {
-    throw new Error('User not found in the database')
-  }
+
+
   return result
 }
 

@@ -98,12 +98,8 @@ userSchema.post('findOne', function (doc, next) {
 
 
 
-// userSchema.pre('updateOne', function (next) {
-//   console.log(this);
-//    next();
-// });
-
-userSchema.pre('updateOne', async function (next) {
+ 
+userSchema.pre('findOneAndUpdate', async function (next) {
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const update : any = this.getUpdate();

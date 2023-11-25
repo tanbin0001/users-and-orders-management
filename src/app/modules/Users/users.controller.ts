@@ -96,7 +96,7 @@ const updateUserData = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       message: 'User updated successfully!',
-      data: updatedUserData,
+      data: result,
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }   catch (err: any) {
@@ -126,6 +126,10 @@ const calculateTotalPrice = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: err.message || 'something went wrong',
+      error: {
+        code: 404,
+        description: "User not found!"
+    }
     })
   }
 }
@@ -150,6 +154,11 @@ const updateUserOrders = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: err.message || 'something went wrong',
+      error: {
+        code: 404,
+        description: "User not found!"
+    }
+      
     })
   }
 }
