@@ -44,7 +44,11 @@ const updateUserDataInDB = async (userId: number, updatedUserData: TUser) => {
 }
 
 const getUserOrdersFromDb = async (userId: number) => {
-  const result = await User.findOne({ userId: userId })
+  const result = await User.findOne({ userId: userId });
+  if (!result) {
+    throw new Error('User not found in the database')
+  }
+
   const orders = result?.orders
   return orders
 }

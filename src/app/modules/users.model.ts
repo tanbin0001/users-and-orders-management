@@ -15,14 +15,14 @@ import config from '../config'
 const fullNameSchema = new Schema<TFullName>({
   firstName: { type: String, required: [true, 'First name is required'] },
   lastName: { type: String, required: [true, 'Last name is required'] },
-})
+}, { _id: false })
 
 // Define Mongoose schema for address
 const addressSchema = new Schema<TAddress>({
   street: { type: String, required: [true, 'Street is required'] },
   city: { type: String, required: [true, 'City is required'] },
   country: { type: String, required: [true, 'Country is required'] },
-})
+}, { _id: false })
 
 const productSchema = new Schema<TProduct>({
   productName: {
@@ -37,7 +37,7 @@ const productSchema = new Schema<TProduct>({
     type: Number,
     required: true,
   },
-});
+}, { _id: false });
 
 // Define Mongoose schema for user
 
@@ -56,7 +56,7 @@ const userSchema = new Schema<TUser, UserModel, UserMethod>({
   hobbies: { type: [String], default: [] },
   address: addressSchema,
   orders: {
-    type: [productSchema],  // Corrected to an array of productSchema
+    type: [productSchema], 
     default: [],
   },
 })
@@ -72,33 +72,61 @@ userSchema.pre('save', async function (next) {
   user.orders = Array.isArray(user.orders) ? user.orders : [];
 
   next()
-})
+});
+
 userSchema.post('save', function (doc, next) {
   doc.password = ''
   next()
 })
 
-// // Query middleware
-userSchema.post('find', function (doc, next) {
-  doc.password = ''
+// Query middleware
+
+
+userSchema.post('find', function (docs, next) {
+  docs.forEach((doc: { password: string })  => {
+     doc.password = '';
+  });
   next();
 });
 
-userSchema.post('findOne', function (doc,next) {
-  doc.password = ''
-  next();
-});
-userSchema.pre('updateOne', function (next) {
-  this.select('-password'); 
-  next();
-});
-
-// Pre-query middleware to exclude the password field
-userSchema.pre(['find', 'findOne', ], function (next) {
-  this.select('-password'); 
+userSchema.post('findOne', function (doc, next) {
+  if (doc) {
+    doc.password = '';
+  }
   next();
 });
 
+
+
+// userSchema.pre('updateOne', function (next) {
+//   console.log(this);
+//    next();
+// });
+
+userSchema.pre('updateOne', async function (next) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const update : any = this.getUpdate();
+    // Check if password is being updated
+    if (update.$set.password) {
+      // Hash the updated password
+      update.$set.password = await bcrypt.hash(
+        update.$set.password,
+        Number(config.bcrypt_salt_rounds),
+      );
+    }
+
+    next();
+  } catch (error) {
+   console.log(error);
+  }
+});
+
+ 
+ 
+
+
+ 
 
 userSchema.methods.isUserExists = async function (userId: number) {
   const existingUser = await User.findOne({ userId })

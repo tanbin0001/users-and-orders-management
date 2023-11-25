@@ -51,6 +51,10 @@ const getSingleUser = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: err.message || 'something went wrong',
+      error: {
+        code: 404,
+        description: "User Not Found"
+      }
     })
   }
 }
@@ -71,6 +75,10 @@ const getUserOrders = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: err.message || 'something went wrong',
+      error: {
+        code: 404,
+        description: "User Not Found"
+      }
     })
   }
 }
@@ -91,10 +99,14 @@ const updateUserData = async (req: Request, res: Response) => {
       data: updatedUserData,
     })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
+  }   catch (err: any) {
     res.status(500).json({
       success: false,
       message: err.message || 'something went wrong',
+      error: {
+        code: 404,
+        description: "User Not Found"
+      }
     })
   }
 }
