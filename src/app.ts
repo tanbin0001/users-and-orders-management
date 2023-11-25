@@ -14,9 +14,9 @@ app.use('/api',UserRoutes)
 
 
 app.get('/', (req : Request, res : Response) => {
-  res.send('Hello World!')
+  res.send('users and orders management server is working awesome!!')
 })
 
-console.log(process.cwd());
+
 
 export default app;
